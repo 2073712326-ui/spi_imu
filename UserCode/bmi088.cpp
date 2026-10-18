@@ -60,8 +60,8 @@ void bmi088_gyro_read_reg(uint8_t reg, uint8_t *rx_data, uint8_t length){
 }
 // gyro写入
 void bmi088_gyro_write_single_reg(uint8_t reg, uint8_t tx_data){
-    BMI088_GYRO_NS_H();
-    BMI088_ACCEL_NS_L();
+    BMI088_ACCEL_NS_H();
+    BMI088_GYRO_NS_L();
     bmi088_write_byte(reg & 0x7F);
     bmi088_write_byte(tx_data);
     BMI088_GYRO_NS_H();

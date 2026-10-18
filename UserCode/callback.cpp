@@ -5,6 +5,7 @@
 //
 uint8_t rx_data[8]{};
 int16_t accel_raw[3]{};
+volatile uint32_t imu_callback_count = 0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     if (htim->Instance == TIM6)
     {
