@@ -1841,13 +1841,13 @@ Image Symbol Table
     .L_MergedGlobals                         0x20000000   Data           8  stm32f4xx_hal.o(.data..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000000   Section        0  stm32f4xx_hal.o(.data..L_MergedGlobals)
     .bss                                     0x20000010   Section       96  libspace.o(.bss)
-    .L_MergedGlobals                         0x20000070   Data          12  callback.o(.bss..L_MergedGlobals)
+    .L_MergedGlobals                         0x20000070   Data          14  callback.o(.bss..L_MergedGlobals)
     [Anonymous Symbol]                       0x20000070   Section        0  callback.o(.bss..L_MergedGlobals)
-    Heap_Mem                                 0x20000120   Data         512  startup_stm32f407xx.o(HEAP)
-    HEAP                                     0x20000120   Section      512  startup_stm32f407xx.o(HEAP)
-    Stack_Mem                                0x20000320   Data        1024  startup_stm32f407xx.o(STACK)
-    STACK                                    0x20000320   Section     1024  startup_stm32f407xx.o(STACK)
-    __initial_sp                             0x20000720   Data           0  startup_stm32f407xx.o(STACK)
+    Heap_Mem                                 0x20000128   Data         512  startup_stm32f407xx.o(HEAP)
+    HEAP                                     0x20000128   Section      512  startup_stm32f407xx.o(HEAP)
+    Stack_Mem                                0x20000328   Data        1024  startup_stm32f407xx.o(STACK)
+    STACK                                    0x20000328   Section     1024  startup_stm32f407xx.o(STACK)
+    __initial_sp                             0x20000728   Data           0  startup_stm32f407xx.o(STACK)
 
     Global Symbols
 
@@ -2096,11 +2096,11 @@ Image Symbol Table
     SystemCoreClock                          0x20000008   Data           4  system_stm32f4xx.o(.data.SystemCoreClock)
     __libspace_start                         0x20000010   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000070   Data           0  libspace.o(.bss)
-    rx_data                                  0x20000070   Data           6  callback.o(.bss..L_MergedGlobals)
-    accel_raw                                0x20000076   Data           6  callback.o(.bss..L_MergedGlobals)
-    hspi1                                    0x2000007c   Data          88  spi.o(.bss.hspi1)
-    htim6                                    0x200000d4   Data          72  tim.o(.bss.htim6)
-    uwTick                                   0x2000011c   Data           4  stm32f4xx_hal.o(.bss.uwTick)
+    accel_raw                                0x20000070   Data           6  callback.o(.bss..L_MergedGlobals)
+    rx_data                                  0x20000076   Data           8  callback.o(.bss..L_MergedGlobals)
+    hspi1                                    0x20000080   Data          88  spi.o(.bss.hspi1)
+    htim6                                    0x200000d8   Data          72  tim.o(.bss.htim6)
+    uwTick                                   0x20000120   Data           4  stm32f4xx_hal.o(.bss.uwTick)
 
 
 
@@ -2262,7 +2262,7 @@ Memory Map of the image
     0x08001e70   0x08001e70   0x00000020   Data   RO         1155    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08001e90, Size: 0x00000720, Max: 0x0001c000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08001e90, Size: 0x00000728, Max: 0x0001c000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -2270,12 +2270,14 @@ Memory Map of the image
     0x20000008   0x08001e98   0x00000004   Data   RW          963    .data.SystemCoreClock  system_stm32f4xx.o
     0x2000000c   0x08001e9c   0x00000004   PAD
     0x20000010        -       0x00000060   Zero   RW         1020    .bss                c_w.l(libspace.o)
-    0x20000070        -       0x0000000c   Zero   RW          133    .bss..L_MergedGlobals  callback.o
-    0x2000007c        -       0x00000058   Zero   RW           40    .bss.hspi1          spi.o
-    0x200000d4        -       0x00000048   Zero   RW           55    .bss.htim6          tim.o
-    0x2000011c        -       0x00000004   Zero   RW          604    .bss.uwTick         stm32f4xx_hal.o
-    0x20000120        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f407xx.o
-    0x20000320        -       0x00000400   Zero   RW            1    STACK               startup_stm32f407xx.o
+    0x20000070        -       0x0000000e   Zero   RW          133    .bss..L_MergedGlobals  callback.o
+    0x2000007e   0x08001e9c   0x00000002   PAD
+    0x20000080        -       0x00000058   Zero   RW           40    .bss.hspi1          spi.o
+    0x200000d8        -       0x00000048   Zero   RW           55    .bss.htim6          tim.o
+    0x20000120        -       0x00000004   Zero   RW          604    .bss.uwTick         stm32f4xx_hal.o
+    0x20000124   0x08001e9c   0x00000004   PAD
+    0x20000128        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f407xx.o
+    0x20000328        -       0x00000400   Zero   RW            1    STACK               startup_stm32f407xx.o
 
 
     Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x08001ea0, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
@@ -2291,7 +2293,7 @@ Image component sizes
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
        126          0          0          0          0       9660   bmi088.o
-        52          0          0          0         12       3443   callback.o
+        52          0          0          0         14       3443   callback.o
        146          0          0          0          0       2080   gpio.o
        196          0          0          0          0       2905   main.o
        248          0          0          0         88       5133   spi.o
@@ -2309,9 +2311,9 @@ Image component sizes
        152          0          0          0         72       7054   tim.o
 
     ----------------------------------------------------------------------
-      6714         30        440         12       1716     177099   Object Totals
+      6714         30        440         12       1724     177099   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-        58          0          0          0          4          0   (incl. Padding)
+        58          0          0          0         10          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
@@ -2362,14 +2364,14 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      7384         46        440         12       1812     177487   Grand Totals
-      7384         46        440         12       1812     177487   ELF Image Totals
+      7384         46        440         12       1820     177487   Grand Totals
+      7384         46        440         12       1820     177487   ELF Image Totals
       7384         46        440         12          0          0   ROM Totals
 
 ==============================================================================
 
     Total RO  Size (Code + RO Data)                 7824 (   7.64kB)
-    Total RW  Size (RW Data + ZI Data)              1824 (   1.78kB)
+    Total RW  Size (RW Data + ZI Data)              1832 (   1.79kB)
     Total ROM Size (Code + RO Data + RW Data)       7836 (   7.65kB)
 
 ==============================================================================
