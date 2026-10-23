@@ -59,7 +59,7 @@ void IMU::gyro_calculate()
     if (raw_range > 4)
     {
         return;
-    }ji
+    }
     //根据编码计算量程
     float range_dps = 2000.0f * (1U << raw_range);
     float pi = 3.14f;
@@ -93,3 +93,31 @@ void IMU::gyro_calculate()
     gyro_[2] = gyro_raw[2] * gyro_scale_;
 
 }
+void IMU::begin_gyro_calibration()
+{
+    gyro_sum_[0] = 0.0f;
+    gyro_sum_[1] = 0.0f;
+    gyro_sum_[2] = 0.0f;
+
+    count_ = 0;
+}
+
+void IMU::add_sample_gyro(){
+    gyro_sum_[0] += gyro_[0];
+    gyro_sum_[1] += gyro_[1];
+    gyro_sum_[2] += gyro_[2];
+    count_++;
+}
+
+bool IMU::finish_gyro_calibration(){
+    if (count_ == 0)
+    {
+        return false;
+
+    }
+    gyro_bias_[0] = gyro_sum_[0] / count_;
+    gyro_bias_[1] = gyro_sum_[1] / count_;
+    gyro_bias_[2] = gyro_sum_[2] / count_;
+    return true;
+}
+

@@ -11,6 +11,9 @@ class IMU {
 public:
     void acc_calculate();
     void gyro_calculate();
+    void begin_gyro_calibration();//开始校准
+    void add_sample_gyro();//新增一组最新的gyro_数据
+    bool finish_gyro_calibration();//求平均，保存零偏
 
 
 
@@ -31,6 +34,14 @@ private:
     //量程系数
     float acc_scale_ = 0.0f;
     float gyro_scale_ = 0.0f;
+    //X、Y、Z轴零偏
+    float gyro_bias_[3] = {};
+
+    float gyro_sum_[3]{};//三轴角速度累计和
+    std::uint32_t count_ = 0;//已累计样本数量
+
+
+
 
 
 
