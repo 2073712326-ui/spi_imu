@@ -16,6 +16,13 @@ public:
     bool finish_gyro_calibration();//求平均，保存零偏
     bool calculate_acc_angle();//姿态解算
 
+    float get_roll();
+    float get_pitch();
+    float get_yaw();
+    bool update_attitude(float dt);
+
+
+
 
 
 
@@ -43,7 +50,19 @@ private:
 
     float roll_acc_ = 0.0f;//加速度估计的横滚角
     float pitch_acc_ = 0.0f;//加速度估计的俯仰角
-    float yaw_acc_ = 0.0f;
+
+
+    //融合后的姿态
+    float roll_ = 0.0f;
+    float pitch_ = 0.0f;
+    float yaw_ = 0.0f;
+    //互补滤波时间常数
+    float filter_tau_ = 0.5f;
+    //是否初始化
+    bool attitude_initialized_ = false;
+
+
+
 
 
 

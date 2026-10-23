@@ -5,8 +5,14 @@ set(CMAKE_C_COMPILER_ID GNU)
 set(CMAKE_CXX_COMPILER_ID GNU)
 
 # Some default GCC settings
-# arm-none-eabi- must be part of path environment
+# Also search local and Homebrew locations without relying on the shell PATH.
 set(TOOLCHAIN_PREFIX                arm-none-eabi-)
+find_program(ARM_GCC_PATH NAMES ${TOOLCHAIN_PREFIX}gcc
+    HINTS "${CMAKE_CURRENT_LIST_DIR}/../.toolchains/arm-gnu/bin"
+          /opt/homebrew/bin /usr/local/bin
+    REQUIRED)
+get_filename_component(ARM_TOOLCHAIN_BIN "${ARM_GCC_PATH}" DIRECTORY)
+set(TOOLCHAIN_PREFIX "${ARM_TOOLCHAIN_BIN}/arm-none-eabi-")
 
 set(CMAKE_C_COMPILER                ${TOOLCHAIN_PREFIX}gcc)
 set(CMAKE_ASM_COMPILER              ${CMAKE_C_COMPILER})
