@@ -186,6 +186,7 @@ bool IMU::update_attitude(float dt) {
     //互补滤波，修正预测值，保存融合结果
     roll_ = roll_predict + (1.0f - alpha) * roll_err;
     pitch_ = pitch_predict + (1.0f - alpha) * pitch_err;
+    yaw_ = yaw_predict;
 
 
 
