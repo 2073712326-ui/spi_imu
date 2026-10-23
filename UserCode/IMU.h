@@ -14,6 +14,7 @@ public:
     void begin_gyro_calibration();//开始校准
     void add_sample_gyro();//新增一组最新的gyro_数据
     bool finish_gyro_calibration();//求平均，保存零偏
+    bool calculate_acc_angle();//姿态解算
 
 
 
@@ -39,6 +40,11 @@ private:
 
     float gyro_sum_[3]{};//三轴角速度累计和
     std::uint32_t count_ = 0;//已累计样本数量
+
+    float roll_acc_ = 0.0f;//加速度估计的横滚角
+    float pitch_acc_ = 0.0f;//加速度估计的俯仰角
+    float yaw_acc_ = 0.0f;
+
 
 
 

@@ -121,3 +121,14 @@ bool IMU::finish_gyro_calibration(){
     return true;
 }
 
+bool IMU::calculate_acc_angle(){
+    //取出三轴加速度
+    float ax = accel_[0];
+    float ay = accel_[1];
+    float az = accel_[2];
+    //计算倾角
+    roll_acc_ = std::atan2(ay,az);
+    pitch_acc_ = std::atan2(-ax,std::sqrt(ay * ay + az * az));
+    return true;
+
+}
