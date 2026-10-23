@@ -59,7 +59,7 @@ void IMU::gyro_calculate()
     if (raw_range > 4)
     {
         return;
-    }
+    }ji
     //根据编码计算量程
     float range_dps = 2000.0f * (1U << raw_range);
     float pi = 3.14f;
@@ -69,14 +69,27 @@ void IMU::gyro_calculate()
     gyro_scale_ = range_dps / 32768.0f * DEG_TO_RAD;
 
     //读取三轴数据，共6字节
+    std::uint8_t rx_gyro_data[6]{};
+    bmi088_gyro_read_reg(0x02,&rx_gyro_data[0],6);
 
+    //拼接为三个有符号的16为原始值
+    std::int16_t gyro_raw[3]{};
 
+    gyro_raw[0] = static_cast<std::int16_t>(
+        (static_cast<std::uint16_t>(rx_gyro_data[1]) << 8)
+        | rx_gyro_data[0]);
 
+    gyro_raw[1] = static_cast<std::int16_t>(
+        (static_cast<std::uint16_t>(rx_gyro_data[3]) << 8)
+        | rx_gyro_data[2]);
 
+    gyro_raw[2] = static_cast<std::int16_t>(
+        (static_cast<std::uint16_t>(rx_gyro_data[5]) << 8)
+        | rx_gyro_data[4]);
 
-
-
-
-
+    //换算为角速度
+    gyro_[0] = gyro_raw[0] * gyro_scale_;
+    gyro_[1] = gyro_raw[1] * gyro_scale_;
+    gyro_[2] = gyro_raw[2] * gyro_scale_;
 
 }
