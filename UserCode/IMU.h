@@ -46,6 +46,13 @@ private:
     float yaw_acc_ = 0.0f;
 
 
+    float roll_ = 0.0f;
+    float pitch_ = 0.0f;
+    float yaw_ = 0.0f;
+
+    
+
+
 
 
 
