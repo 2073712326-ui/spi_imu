@@ -3,7 +3,6 @@
 //
 
 #include "IMU.h"
-#include <sys/_stdint.h>
 #include "bmi088.h"
 #include <cmath>
 
@@ -28,8 +27,8 @@ void IMU::acc_calculate()
     float g = 9.80665f;
     acc_scale_ = range_g * g / 32768.0f;
 
-    //3.读取acc0x12寄存器中的6位acc数据,高字节在前,低字节在后
-    bmi088_gyro_read_reg(0x12,&raw_range,6);
+    //3.读取acc0x12寄存器中的6字节acc数据，低字节在前
+    bmi088_accel_read_reg(0x12,rx_acc_data,6);
     acc_raw[0] = static_cast<std::int16_t>(
         (static_cast<std::uint16_t>(rx_acc_data[1]) << 8)
         | rx_acc_data[0]);//x轴数据
@@ -54,14 +53,15 @@ void IMU::gyro_calculate()
 {
     //读取量程编码
     std::uint8_t raw_range = 0;
-    bmi088_gyro_read_reg(0x12,&raw_range,1);
+    bmi088_gyro_read_reg(0x0F,&raw_range,1);
+    raw_range &= 0x07;
     //仅0-4是有效编码
     if (raw_range > 4)
     {
         return;
     }
     //根据编码计算量程
-    float range_dps = 2000.0f * (1U << raw_range);
+    float range_dps = 2000.0f / (1U << raw_range);
     float pi = 3.14f;
 
     //换算系数
@@ -130,5 +130,65 @@ bool IMU::calculate_acc_angle(){
     roll_acc_ = std::atan2(ay,az);
     pitch_acc_ = std::atan2(-ax,std::sqrt(ay * ay + az * az));
     return true;
+}
+
+bool IMU::update_attitude(float dt) {
+    //检查dt的数值
+    if (dt <= 0.0f) {
+        return false;
+    }
+    if (!calculate_acc_angle()) {
+        return false;
+    }
+
+    if (attitude_initialized_ == false) {
+        roll_ = roll_acc_;
+        pitch_ = pitch_acc_;
+        yaw_ = 0.0f;
+
+        attitude_initialized_ = true;
+        return true;
+
+    }
+    float gx = gyro_[0] - gyro_bias_[0];
+    float gy = gyro_[1] - gyro_bias_[1];
+    float gz = gyro_[2] - gyro_bias_[2];
+
+    //使用上一次融合姿态计算三角函数
+    float sin_roll = std::sin(roll_);
+    float cos_roll = std::cos(roll_);
+    float sin_pitch = std::sin(pitch_);
+    float cos_pitch = std::cos(pitch_);
+
+    if (std::fabs(cos_pitch) < 0.01f){
+        return false;
+    }
+
+    float tan_pitch = sin_pitch / cos_pitch;
+
+    //将机体角速度转换为欧拉角变化率
+    float roll_rate = gx + sin_roll * tan_pitch * gy + cos_roll * tan_pitch * gz ;
+    float pitch_rate = cos_roll * gy - sin_roll * gz;
+    float yaw_rate = (sin_roll * gy + cos_roll * gz) / cos_pitch;
+
+    //用变化率预测本次姿态
+    float roll_predict = roll_ + roll_rate * dt;
+    float pitch_predict = pitch_ + pitch_rate * dt;
+    float yaw_predict = yaw_ + yaw_rate * dt;
+
+    //根据时间常数和更新周期计算权重
+    float alpha = filter_tau_ / (filter_tau_ + dt);
+
+    //计算加速度倾角与预测角度的差值
+    float roll_err = roll_acc_ - roll_predict;
+    float pitch_err = pitch_acc_ - pitch_predict;
+
+    //互补滤波，修正预测值，保存融合结果
+    roll_ = roll_predict + (1.0f - alpha) * roll_err;
+    pitch_ = pitch_predict + (1.0f - alpha) * pitch_err;
+    yaw_ = yaw_predict;
+
+
+
 
 }
