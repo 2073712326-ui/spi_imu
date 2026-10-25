@@ -6,12 +6,27 @@
 // Created by qjy on 2026/10/18.
 //
 
+volatile uint32_t bmi088_spi_error_count = 0;
+volatile uint32_t bmi088_last_spi_error = HAL_OK;
+volatile uint8_t bmi088_accel_id = 0;
+volatile uint8_t bmi088_gyro_id = 0;
+volatile uint8_t bmi088_init_error = 0;
+
+static void record_spi_status(HAL_StatusTypeDef status)
+{
+    if (status != HAL_OK)
+    {
+        bmi088_last_spi_error = status;
+        ++bmi088_spi_error_count;
+    }
+}
+
 void bmi088_write_byte(uint8_t tx_data){
-    HAL_SPI_Transmit(&hspi1, &tx_data,1,1000);
+    record_spi_status(HAL_SPI_Transmit(&hspi1, &tx_data,1,10));
 
 }
 void bmi088_read_byte(uint8_t* rx_data,uint8_t length){
-    HAL_SPI_Receive(&hspi1, rx_data,length,1000);
+    record_spi_status(HAL_SPI_Receive(&hspi1, rx_data,length,10));
 
 }
 void bmi088_write_reg(uint8_t reg,uint8_t data){
@@ -69,8 +84,10 @@ void bmi088_gyro_write_single_reg(uint8_t reg, uint8_t tx_data){
 }
 uint8_t bmi088_init(void) {
     uint8_t dummy = 0;
-    uint8_t acc_id = 0;
-    uint8_t gyro_id = 0;
+    bmi088_accel_id = 0;
+    bmi088_gyro_id = 0;
+    bmi088_init_error = 0;
+    const uint32_t spi_errors_before = bmi088_spi_error_count;
     uint8_t acc_power[2] = {0};
     uint8_t acc_config[2] = {0};
     uint8_t gyro_config[3] = {0};
@@ -96,12 +113,18 @@ uint8_t bmi088_init(void) {
     HAL_Delay(1);
 
     // Check Chip ID
-    bmi088_accel_read_reg(0x00, &acc_id, 1);
-    if (acc_id != 0x1E) {
+    uint8_t chip_id = 0;
+    bmi088_accel_read_reg(0x00, &chip_id, 1);
+    bmi088_accel_id = chip_id;
+    if (chip_id != 0x1E) {
+        bmi088_init_error = 1;
         return 0;
     }
-    bmi088_gyro_read_reg(0x00, &gyro_id, 1);
-    if (gyro_id != 0x0F) {
+    chip_id = 0;
+    bmi088_gyro_read_reg(0x00, &chip_id, 1);
+    bmi088_gyro_id = chip_id;
+    if (chip_id != 0x0F) {
+        bmi088_init_error = 2;
         return 0;
     }
 
@@ -128,18 +151,25 @@ uint8_t bmi088_init(void) {
     // Read back，连续读取相邻的配置寄存器
     bmi088_accel_read_reg(0x7C, acc_power, 2);
     if (acc_power[0] != 0x00 || acc_power[1] != 0x04) {
+        bmi088_init_error = 3;
         return 0;
     }
     bmi088_accel_read_reg(0x40, acc_config, 2);
     if (acc_config[0] != 0xAB || (acc_config[1] & 0x03) != 0x01) {
+        bmi088_init_error = 4;
         return 0;
     }
     bmi088_gyro_read_reg(0x0F, gyro_config, 3);
     if ((gyro_config[0] & 0x07) != 0x00 ||
         (gyro_config[1] & 0x07) != 0x02 || gyro_config[2] != 0x00) {
+        bmi088_init_error = 5;
         return 0;//如果返回 0，可以在对应的 return 0 处打断点，看是 Chip ID 不对，还是哪个配置没有写进去
         }
 
+    if (bmi088_spi_error_count != spi_errors_before) {
+        bmi088_init_error = 6;
+        return 0;
+    }
     return 1;
 }
 

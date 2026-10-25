@@ -16,9 +16,9 @@ public:
     bool finish_gyro_calibration();//求平均，保存零偏
     bool calculate_acc_angle();//姿态解算
 
-    float get_roll();
-    float get_pitch();
-    float get_yaw();
+    float get_roll() {return roll_;}
+    float get_pitch() {return pitch_;}
+    float get_yaw() {return yaw_;}
     bool update_attitude(float dt);
 
 
@@ -65,9 +65,6 @@ private:
 
 
 
-    float roll_ = 0.0f;
-    float pitch_ = 0.0f;
-    float yaw_ = 0.0f;
 
     
 

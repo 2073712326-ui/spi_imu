@@ -12,6 +12,13 @@
 extern "C" {
 #endif
 
+extern volatile uint32_t bmi088_spi_error_count;
+extern volatile uint32_t bmi088_last_spi_error;
+extern volatile uint8_t bmi088_accel_id;
+extern volatile uint8_t bmi088_gyro_id;
+// 0: OK; 1/2: accel/gyro ID; 3: power; 4/5: accel/gyro config; 6: SPI.
+extern volatile uint8_t bmi088_init_error;
+
 void bmi088_write_byte(uint8_t tx_data);
 void bmi088_read_byte(uint8_t* rx_data,uint8_t length);
 void bmi088_write_reg(uint8_t reg,uint8_t data);

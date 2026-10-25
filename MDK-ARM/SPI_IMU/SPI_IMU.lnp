@@ -8,6 +8,7 @@
 "spi_imu\stm32f4xx_hal_msp.o"
 "spi_imu\bmi088.o"
 "spi_imu\callback.o"
+"spi_imu\imu.o"
 "spi_imu\stm32f4xx_hal_spi.o"
 "spi_imu\stm32f4xx_hal_rcc.o"
 "spi_imu\stm32f4xx_hal_rcc_ex.o"

@@ -25,6 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bmi088.h"
+#include "imu_app.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,7 +91,15 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_TIM6_Init();
+
   /* USER CODE BEGIN 2 */
+    bmi088_init_ok = bmi088_init();
+    if (!bmi088_init_ok)
+    {
+        Error_Handler();
+    }
+
+
     if (HAL_TIM_Base_Start_IT(&htim6) != HAL_OK)
   {
     Error_Handler();
@@ -104,6 +113,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    imu_poll();
   }
   /* USER CODE END 3 */
 }

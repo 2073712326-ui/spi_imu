@@ -439,6 +439,16 @@
               <FileType>5</FileType>
               <FilePath>..\Core\Inc\bmi088.h</FilePath>
             </File>
+            <File>
+              <FileName>IMU.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>..\UserCode\IMU.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>IMU.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\UserCode\IMU.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

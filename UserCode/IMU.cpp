@@ -6,15 +6,6 @@
 #include "bmi088.h"
 #include <cmath>
 
-uint8_t rx_acc_data[6]{};//加速度计接收缓冲区
-uint8_t rx_gyro_data[6]{};//陀螺仪接收缓冲区
-//将两个字节拼成一个数据
-int16_t acc_raw[3]{};
-int16_t gyro_raw[3]{};
-
-
-
-
 void IMU::acc_calculate()
 {
     //1.设置/读取acc0x41寄存器中的量程range参数，并换算为量程系数
@@ -62,18 +53,16 @@ void IMU::gyro_calculate()
     }
     //根据编码计算量程
     float range_dps = 2000.0f / (1U << raw_range);
-    float pi = 3.14f;
+    const float pi = 3.14159265358979323846f;
 
     //换算系数
     float DEG_TO_RAD = pi / 180.0f;
     gyro_scale_ = range_dps / 32768.0f * DEG_TO_RAD;
 
     //读取三轴数据，共6字节
-    std::uint8_t rx_gyro_data[6]{};
     bmi088_gyro_read_reg(0x02,&rx_gyro_data[0],6);
 
     //拼接为三个有符号的16为原始值
-    std::int16_t gyro_raw[3]{};
 
     gyro_raw[0] = static_cast<std::int16_t>(
         (static_cast<std::uint16_t>(rx_gyro_data[1]) << 8)
@@ -126,6 +115,10 @@ bool IMU::calculate_acc_angle(){
     float ax = accel_[0];
     float ay = accel_[1];
     float az = accel_[2];
+    if (!std::isfinite(ax) || !std::isfinite(ay) || !std::isfinite(az)
+        || (ax == 0.0f && ay == 0.0f && az == 0.0f)) {
+        return false;
+    }
     //计算倾角
     roll_acc_ = std::atan2(ay,az);
     pitch_acc_ = std::atan2(-ax,std::sqrt(ay * ay + az * az));
@@ -134,7 +127,7 @@ bool IMU::calculate_acc_angle(){
 
 bool IMU::update_attitude(float dt) {
     //检查dt的数值
-    if (dt <= 0.0f) {
+    if (!std::isfinite(dt) || dt <= 0.0f) {
         return false;
     }
     if (!calculate_acc_angle()) {
@@ -161,7 +154,11 @@ bool IMU::update_attitude(float dt) {
     float cos_pitch = std::cos(pitch_);
 
     if (std::fabs(cos_pitch) < 0.01f){
-        return false;
+        // Euler rates are singular here. Recover tilt from gravity so a
+        // previous pitch near 90 degrees cannot freeze all later updates.
+        roll_ = roll_acc_;
+        pitch_ = pitch_acc_;
+        return true;
     }
 
     float tan_pitch = sin_pitch / cos_pitch;
@@ -185,9 +182,9 @@ bool IMU::update_attitude(float dt) {
     //根据时间常数和更新周期计算权重
     float alpha = filter_tau_ / (filter_tau_ + dt);
 
-    //计算加速度倾角与预测角度的差值
-    float roll_err = roll_acc_ - roll_predict;
-    float pitch_err = pitch_acc_ - pitch_predict;
+    //计算加速度倾角与预测角度的差值,并归一化
+    float roll_err =std::remainder(roll_acc_ - roll_predict, two_pi);
+    float pitch_err =std::remainder(pitch_acc_ - pitch_predict, two_pi);
 
     //互补滤波，修正预测值，保存融合结果
     roll_ = roll_predict + (1.0f - alpha) * roll_err;
