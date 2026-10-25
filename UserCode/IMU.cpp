@@ -176,6 +176,12 @@ bool IMU::update_attitude(float dt) {
     float pitch_predict = pitch_ + pitch_rate * dt;
     float yaw_predict = yaw_ + yaw_rate * dt;
 
+    const float pi = 3.14159265358979323846f;
+    const float two_pi = 2.0f * pi;
+    roll_predict = std::remainder(roll_predict, two_pi);
+    pitch_predict = std::remainder(pitch_predict, two_pi);
+    yaw_predict = std::remainder(yaw_predict, two_pi);
+
     //根据时间常数和更新周期计算权重
     float alpha = filter_tau_ / (filter_tau_ + dt);
 
@@ -188,7 +194,7 @@ bool IMU::update_attitude(float dt) {
     pitch_ = pitch_predict + (1.0f - alpha) * pitch_err;
     yaw_ = yaw_predict;
 
-
+    return true;
 
 
 }
